@@ -52,8 +52,15 @@ server <- function(input, output, session) {
     # Funktion zum Saetze zaehlen
     detc <- lapply(dat, function(x) sent_detect(x, endmarks = c("?", ".", "!", "|", "::"),
                                                 rm.bracket = F))
-    # Part-of-Speech Tagging fuer Wortarten
-    pos <- pos(detc, parallel = T)
+    # checking and saving file with pos tags
+    if(file.exists(paste0(input$file$name,"pos.rds"))) {
+      pos <- readRDS(paste0(input$file$name,"pos.rds"))
+    }
+    else {
+      # Part-of-Speech Tagging fuer Wortarten
+      pos <- pos(detc, parallel = T)
+      saveRDS(pos, file = paste0(input$file$name,"pos.rds"))
+    }
     
     res <- vector("character", length(detc))
     po_co <- 0
