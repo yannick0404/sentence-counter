@@ -14,10 +14,8 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   data <- reactive({
-    req(input$file)
     # Datensatz einlesen
     df <- read_xlsx(input$file$datapath)
-    
     if (!"fulltext" %in% names(df)) {
       stop("Column 'fulltext' not found in the uploaded file!")
     }
@@ -50,8 +48,9 @@ server <- function(input, output, session) {
   
   vis <- function(dat) {
     # Funktion zum Saetze zaehlen
-    detc <- lapply(dat, function(x) sent_detect(x, endmarks = c("?", ".", "!", "|", "::"),
-                                                rm.bracket = F))
+    detc <- lapply(lapply(dat, function(x) sent_detect(x, endmarks = c("?", ".", "!", "|", "::"),
+                                                rm.bracket = F)), rm_non_ascii)
+    
     # checking and saving file with pos tags
     if(file.exists(paste0(input$file$name,"pos.rds"))) {
       pos <- readRDS(paste0(input$file$name,"pos.rds"))
